@@ -18,24 +18,33 @@ import {
   DeleteWorkoutAction,
   GetListWorkoutAction,
   SearchWorkoutAction,
+  UpdateWorkout1Action,
   UpdateWorkoutAction,
   WorkoutDeleteExercisesAction,
   WorkoutDeleteMealAction,
 } from "../../redux/action/WorkoutAction";
 import { GetListMealAction } from "../../redux/action/MealAction";
 import { GetListExercisesAction } from "../../redux/action/ExercisesAcrion";
+import { GetListCategoryAction } from "../../redux/action/CategoryAction";
 
 export default function PlanWorkout() {
   const dispatch = useDispatch();
   const { arrWorkout } = useSelector((root) => root.WorkoutReducer);
   const { arrMeal } = useSelector((root) => root.MealReducer);
   const { arrExercises } = useSelector((root) => root.ExercisesReducer);
+  const { arrCategory } = useSelector((root) => root.CategoryReducer);
   const [hide, setHide] = useState(false);
-  const [selectedValueLevel, setSelectedValueLevel] = useState(""); 
+  const [selectedValueLevel, setSelectedValueLevel] = useState("");
+  const [selectedValueLevel1, setSelectedValueLevel1] = useState("");
 
   const handleSelectChangeLevel = (event) => {
     const value = event.target.value; // Lấy giá trị từ event
     setSelectedValueLevel(value); // Cập nhật giá trị được chọn vào state
+  };
+
+  const handleSelectChangeLevel1 = (event) => {
+    const value = event.target.value; // Lấy giá trị từ event
+    setSelectedValueLevel1(value); // Cập nhật giá trị được chọn vào state
   };
   let emptyProduct = {
     user_id: "0",
@@ -174,6 +183,8 @@ export default function PlanWorkout() {
 
     const action2 = GetListExercisesAction();
     dispatch(action2);
+    const action3 = GetListCategoryAction();
+    dispatch(action3);
   }, []);
   useEffect(() => {
     setProducts(arrWorkout.filter((item) => item.status === "active"));
@@ -198,7 +209,6 @@ export default function PlanWorkout() {
   const hideDeleteProductsDialog = () => {
     setDeleteProductsDialog(false);
   };
-
   const saveProduct = async () => {
     setSubmitted(true);
 
@@ -207,27 +217,54 @@ export default function PlanWorkout() {
       let _product = { ...product };
       const plan_meal = selectedIds;
       const plan_exercises = selectedIds1;
-      const data = await { ...product, plan_meal, plan_exercises };
+
+      const data = await {
+        ...product,
+        plan_meal,
+        plan_exercises,
+        category_id: selectedValueLevel1,
+      };
+      console.log(data);
       if (product.user_id !== "0") {
         const index = findIndexById(product.id);
+        console.log(product.category_id);
 
         _products[index] = _product;
-        const action = await UpdateWorkoutAction(data);
-        await dispatch(action);
-        setProductDialog(false);
-        toast.current.show({
-          severity: "success",
-          summary: "Thành công",
-          detail: `Cập nhật kế hoạch tập luyện ${product.plan_name} thành công`,
-          life: 3000,
-        });
-        setText("Chỉnh sửa kế hoạch tập luyện");
+        const updatedData = { ...data }; // Tạo bản sao của data
+        console.log(updatedData);
+
+        if (updatedData.category_id === "") {
+          updatedData.category_id = product.category_id;
+          console.log(updatedData);
+          const action = await UpdateWorkout1Action(updatedData);
+          await dispatch(action);
+          setProductDialog(false);
+          toast.current.show({
+            severity: "success",
+            summary: "Thành công",
+            detail: `Cập nhật kế hoạch tập luyện ${product.plan_name} thành công`,
+            life: 3000,
+          });
+          setText("Chỉnh sửa kế hoạch tập luyện");
+        } else {
+          const action = await UpdateWorkoutAction(data);
+          await dispatch(action);
+          setProductDialog(false);
+          toast.current.show({
+            severity: "success",
+            summary: "Thành công",
+            detail: `Cập nhật kế hoạch tập luyện ${product.plan_name} thành công`,
+            life: 3000,
+          });
+          setText("Chỉnh sửa kế hoạch tập luyện");
+        }
       } else {
         const data1 = await {
           ...product,
           plan_meal,
           plan_exercises,
           fitness_level: selectedValueLevel,
+          category_id: selectedValueLevel1,
         };
         const action = await CreateWorkoutAction(data1);
         await dispatch(action);
@@ -248,7 +285,8 @@ export default function PlanWorkout() {
 
   const editProduct = (product) => {
     setText("Chỉnh sửa kế hoạch tập luyện");
-    setProduct({ ...product });
+    const data = product.category_id;
+    setProduct({ ...product, category_id: data });
     setProductDialog(true);
     setTempProduct({ ...product });
   };
@@ -275,7 +313,7 @@ export default function PlanWorkout() {
     const plan_meal = selectedIds;
     const plan_exercises = selectedIds1;
     const data = await { ...product, plan_meal, plan_exercises };
-
+    console.log(data);
     const action = await UpdateWorkoutAction(data);
     await dispatch(action);
 
@@ -304,6 +342,13 @@ export default function PlanWorkout() {
     setDeleteProductDialog2(false);
     const action = CreateDailyAction(data);
     dispatch(action);
+    toast.current.show({
+      severity: "success",
+      summary: "Thành công",
+      detail: `Thêm mới chi tiết thành công`,
+      life: 3000,
+    });
+    setFormCount(1)
   };
   const findIndexById = (id) => {
     let index = -1;
@@ -489,7 +534,7 @@ export default function PlanWorkout() {
     const updatedPlanMeals = product.PlanMeals.filter(
       (item) => item.id !== itemId
     );
-
+console.log(itemId)
     // Cập nhật object product với mảng mới đã xóa phần tử
     const updatedProduct = { ...product, PlanMeals: updatedPlanMeals };
     const action = WorkoutDeleteMealAction(itemId);
@@ -666,15 +711,8 @@ export default function PlanWorkout() {
             ></Column>
 
             <Column
-              field="start_date"
-              header="Thời gian bắt đầu"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-
-            <Column
-              field="end_date"
-              header="Thời gian kết thúc"
+              field="total_time"
+              header="Thời gian/ngày"
               sortable
               style={{ minWidth: "12rem" }}
             ></Column>
@@ -728,36 +766,19 @@ export default function PlanWorkout() {
               className="font-bold"
               style={{ fontWeight: "bold" }}
             >
-              Thời gian bắt đầu
+              Thời gian/ngày
             </label>
             <br />
             <InputText
-              type="date"
-              id="start_date"
-              value={product.start_date}
-              onChange={(e) => onInputChange(e, "start_date")}
+              type="number"
+              id="total_time"
+              value={product.total_time}
+              onChange={(e) => onInputChange(e, "total_time")}
               required
               autoFocus
             />
           </div>
-          <div className="field" style={{ marginTop: "20px" }}>
-            <label
-              htmlFor="processTypeName"
-              className="font-bold"
-              style={{ fontWeight: "bold" }}
-            >
-              Thời gian kết thúc
-            </label>
-            <br />
-            <InputText
-              type="date"
-              id="end_date"
-              value={product.end_date}
-              onChange={(e) => onInputChange(e, "end_date")}
-              required
-              autoFocus
-            />
-          </div>
+
           <div className="field" style={{ marginTop: "20px" }}>
             <label
               htmlFor="processTypeName"
@@ -792,6 +813,30 @@ export default function PlanWorkout() {
               rows={3}
               cols={20}
             />
+          </div>
+
+          <div className="field" style={{ marginTop: "20px" }}>
+            <label
+              htmlFor="processTypeName"
+              className="font-bold"
+              style={{ fontWeight: "bold" }}
+            >
+              Loại kế hoạch
+            </label>
+            <br />
+            <select
+              className="form-control"
+              onChange={handleSelectChangeLevel1}
+            >
+              <option value={product.category_id} selected>
+                Chọn loại kế hoạch
+              </option>
+              {arrCategory.map((item, index) => {
+                return (
+                  <option value={item.category_id}>{item.category_name}</option>
+                );
+              })}
+            </select>
           </div>
           <div
             className="field mt-5"

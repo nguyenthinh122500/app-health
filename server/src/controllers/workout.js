@@ -2,13 +2,18 @@ const sequelize = require("../models/index");
 const initModel = require("../models/init-models");
 const { succesCode, errorCode, failCode } = require("../reponse/reponse");
 const models = initModel(sequelize);
-const { Op, where  } = require("sequelize");
+const { Op, where } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 
 const getListWorkout = async (req, res) => {
   try {
     const workouts = await models.WorkoutPlans.findAll({
+      where: {
+        status: {
+          [Op.eq]: "active",
+        },
+      },
       include: [
         {
           model: models.PlanExercises,
@@ -40,7 +45,10 @@ const getListWorkout = async (req, res) => {
             },
           ],
           order: [
-            [sequelize.literal('CAST(DailyPlanDetails.day AS UNSIGNED)'), 'ASC']
+            [
+              sequelize.literal("CAST(DailyPlanDetails.day AS UNSIGNED)"),
+              "ASC",
+            ],
           ],
         },
       ],
@@ -111,7 +119,7 @@ const getWorkoutByID = async (req, res) => {
         },
       ],
     });
-  
+
     if (workouts) {
       // Sắp xếp dữ liệu sau khi đã lấy được
       workouts.DailyPlanDetails.sort((a, b) => {
@@ -125,7 +133,7 @@ const getWorkoutByID = async (req, res) => {
         }
         return 0;
       });
-      
+
       succesCode(res, workouts, "Get Workout Successfully!!!");
     } else {
       errorCode(res, "No workout found");
@@ -139,13 +147,18 @@ const getWorkoutByID = async (req, res) => {
 const suggestWorkout = async (req, res) => {
   try {
     const { user_id } = req.params;
-    const user = await models.Users.findOne({ where: { user_id } });
+    const user = await models.Users.findOne({
+      where: {
+        user_id: user_id, // Thay user_id bằng giá trị cụ thể
+      }
+    });
 
     const fitnessLevel = user.message.split(":")[1].trim(); // Extract fitness_level from user.message
 
     const workouts = await models.WorkoutPlans.findAll({
       where: {
         fitness_level: { [Op.like]: fitnessLevel },
+        status: 'active'
       },
       include: [
         {
@@ -192,7 +205,7 @@ const getListWorkoutByCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const workouts = await models.WorkoutPlans.findAll({
-      where: { category_id: id },
+      where: { category_id: id ,  status: 'active'},
       include: [
         {
           model: models.PlanExercises,
@@ -238,22 +251,22 @@ const createWorkout = async (req, res) => {
   try {
     const {
       goal,
-      start_date,
-      end_date,
+      total_time,
       fitness_level,
       plan_name,
       image,
       plan_meal,
       plan_exercises,
+      category_id,
     } = req.body;
     const workout = await models.WorkoutPlans.create({
       plan_id: uuidv4(),
       goal,
-      start_date,
-      end_date,
+      total_time,
       fitness_level,
       plan_name,
       image,
+      category_id,
       status: "active",
     });
 
@@ -283,13 +296,13 @@ const updateWorkout = async (req, res) => {
     const {
       plan_id,
       goal,
-      start_date,
-      end_date,
+      total_time,
       fitness_level,
       plan_name,
       image,
       plan_meal,
       plan_exercises,
+      category_id,
     } = req.body;
 
     // Kiểm tra xem plan_id có tồn tại không
@@ -303,11 +316,11 @@ const updateWorkout = async (req, res) => {
     const updatedWorkout = await models.WorkoutPlans.update(
       {
         goal,
-        start_date,
-        end_date,
+        total_time,
         fitness_level,
         plan_name,
         image,
+        category_id,
       },
       {
         where: {
@@ -334,10 +347,53 @@ const updateWorkout = async (req, res) => {
 
     succesCode(res, updatedWorkout, "Update Workout Successfully!!!");
   } catch (error) {
-    return errorCode(res, "Backend error");
+     errorCode(res, "Backend error");
   }
 };
+const updateWorkout1 = async (req, res) => {
+  try {
+    const {
+      plan_id,
+      goal,
+      total_time,
+      fitness_level,
+      plan_name,
+      image,
+      category_id,
+    } = req.body;
 
+    // Kiểm tra xem plan_id có tồn tại không
+    const existingWorkout = await models.WorkoutPlans.findByPk(plan_id);
+
+    if (!existingWorkout) {
+      return errorCode(res, "Workout not found"); // Trả về mã lỗi nếu plan_id không tồn tại
+    }
+
+    // Cập nhật thông tin cho bản ghi đã tồn tại
+    const updatedWorkout = await models.WorkoutPlans.update(
+      {
+        goal,
+        total_time,
+        fitness_level,
+        plan_name,
+        image,
+        category_id,
+      },
+      {
+        where: {
+          plan_id: plan_id,
+        },
+      }
+    );
+
+    // Cập nhật danh sách meal và exercise
+   
+
+    succesCode(res, updatedWorkout, "Update Workout Successfully!!!");
+  } catch (error) {
+     errorCode(res, "Backend error");
+  }
+};
 const deletePlanMeal = async (req, res) => {
   try {
     let { id } = req.params;
@@ -402,12 +458,10 @@ const createPlanDaily = async (req, res) => {
     const createdDetails = await models.DailyPlanDetails.bulkCreate(plan_daily);
 
     // If needed, you can handle the response accordingly
-    res
-      .status(200)
-      .json({
-        message: "DailyPlanDetails created successfully",
-        createdDetails,
-      });
+    res.status(200).json({
+      message: "DailyPlanDetails created successfully",
+      createdDetails,
+    });
   } catch (error) {
     console.error("Error:", error);
     return errorCode(res, "Backend error");
@@ -441,4 +495,5 @@ module.exports = {
   searchWorkoutByName,
   createPlanDaily,
   deletePlanDaily,
+  updateWorkout1
 };

@@ -83,4 +83,38 @@ const createExercises = async (req, res) => {
     return errorCode(res, "Backend error");
   }
 };
-module.exports = { getListExercises, updateExercises, createExercises , searchExercisesByName};
+
+const deleteExercises = async (req, res) => {
+  let { exercise_id } = req.params;
+
+  try {
+    const planMealExists = await models.PlanExercises.findOne({
+      where: {
+        exercise_id: exercise_id,
+      },
+    });
+
+    // Kiểm tra xem exercise_id có tồn tại trong bảng DailyPlanDetails không
+    const dailyPlanDetailExists = await models.DailyPlanDetails.findOne({
+      where: {
+        exercise_id: exercise_id,
+      },
+    });
+
+
+    // Nếu exercise_id không tồn tại trong cả PlanMeals và DailyPlanDetails, thực hiện xóa
+    if (!planMealExists && !dailyPlanDetailExists) {
+      const exercises = await models.Exercises.destroy({ where: { exercise_id } });
+      return succesCode(res, exercises, "Xóa thành công");
+    } else {
+      return failCode(
+        res,
+        `Không thể xóa bài tập do nằm trong dữ liệu đã dùng`
+      );
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return errorCode(res, "Backend error");
+  }
+};
+module.exports = { getListExercises, updateExercises, createExercises , searchExercisesByName, deleteExercises};

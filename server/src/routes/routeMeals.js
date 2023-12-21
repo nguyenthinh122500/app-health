@@ -1,6 +1,6 @@
 const express = require('express');
-const { getListMeal, updateMeal, createMeal, searchMealByName } = require('../controllers/meal');
-const { deleteMeal } = require('../../server/src/controllers/meal');
+const { getListMeal, updateMeal, createMeal, searchMealByName, deleteMeal } = require('../controllers/meal');
+
 const routeMeals = express.Router();
 
 routeMeals.get('/getlistmeals',getListMeal)

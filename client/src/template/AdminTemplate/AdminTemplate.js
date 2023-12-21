@@ -14,11 +14,11 @@ export const AdminTemplate = (props) => {
           <div>
             {/* Banner */}
             <a
-              href="https://webpixels.io/components?ref=codepen"
+              href="#"
               className="btn w-full btn-primary text-truncate rounded-0 py-2 border-0 position-relative"
               style={{ zIndex: 1000 }}
             >
-              <strong>Project Health</strong> →
+              <strong>Project Healthy</strong> →
             </a>
             {/* Dashboard */}
             <div className="d-flex flex-column flex-lg-row h-lg-full bg-surface-secondary">
@@ -95,7 +95,11 @@ export const AdminTemplate = (props) => {
                           <i className="bi bi-bookmarks" /> Kế hoạch tập luyện
                         </NavLink>
                       </li>
-                     
+                      <li className="nav-item">
+                        <NavLink to="/category" className="nav-link">
+                          <i className="bi bi-bookmarks" /> Loại kế hoạch
+                        </NavLink>
+                      </li>
                     </ul>
                     {/* Divider */}
                     <hr className="navbar-divider my-2 opacity-20" />

@@ -3,8 +3,9 @@ const routeUser = require("./routeUser");
 const routeWorkout = require("./routeWorkout");
 const routeCategory = require("./routeCategory");
 const routeSelectWorkout = require("./routeSelectWorkout");
-const routeMeals = require("./routeMeals");
+;
 const routeExercises = require("./routeExercises");
+const routeMeals = require("./routeMeals");
 
 const routes = express.Router();
 

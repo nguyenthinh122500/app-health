@@ -80,4 +80,39 @@ const createMeal = async (req, res) => {
     return errorCode(res, "Backend error");
   }
 };
-module.exports = { getListMeal, updateMeal, createMeal , searchMealByName};
+
+
+const deleteMeal = async (req, res) => {
+  let { meal_id } = req.params;
+
+  try {
+    const planMealExists = await models.PlanMeals.findOne({
+      where: {
+        meal_id: meal_id,
+      },
+    });
+
+    // Kiểm tra xem meal_id có tồn tại trong bảng DailyPlanDetails không
+    const dailyPlanDetailExists = await models.DailyPlanDetails.findOne({
+      where: {
+        meal_id: meal_id,
+      },
+    });
+
+
+    // Nếu meal_id không tồn tại trong cả PlanMeals và DailyPlanDetails, thực hiện xóa
+    if (!planMealExists && !dailyPlanDetailExists) {
+      const meal = await models.Meals.destroy({ where: { meal_id } });
+      return succesCode(res, meal, "Xóa thànnh công");
+    } else {
+      return failCode(
+        res,
+        `Không thể xóa thực phẩm do nằm trong dữ liệu đã dùng`
+      );
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    return errorCode(res, "Backend error");
+  }
+};
+module.exports = { getListMeal, updateMeal, createMeal , searchMealByName,deleteMeal};

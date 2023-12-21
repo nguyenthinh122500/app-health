@@ -4,6 +4,7 @@ import { MealReducer } from "./reducer/MealReducer";
 import { ExercisesReducer } from "./reducer/ExercisesReducer";
 import { UserReducer } from "./reducer/USerReducer";
 import { WorkoutReducer } from "./reducer/WorkoutReducer";
+import { CategoryReducer } from "./reducer/CategoryReducer";
 
 
 const rootReducer = combineReducers({
@@ -11,6 +12,7 @@ const rootReducer = combineReducers({
     ExercisesReducer,
     UserReducer,
     WorkoutReducer,
+    CategoryReducer,
 });
 
 let middleWare = applyMiddleware(reduxThunk);

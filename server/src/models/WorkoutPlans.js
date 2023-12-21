@@ -15,14 +15,6 @@ class WorkoutPlans extends Sequelize.Model {
       type: DataTypes.TEXT,
       allowNull: true
     },
-    start_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: true
-    },
-    end_date: {
-      type: DataTypes.DATEONLY,
-      allowNull: true
-    },
     fitness_level: {
       type: DataTypes.TEXT,
       allowNull: true
@@ -45,6 +37,10 @@ class WorkoutPlans extends Sequelize.Model {
     },
     status: {
       type: DataTypes.STRING(10),
+      allowNull: true
+    },
+    total_time: {
+      type: DataTypes.INTEGER,
       allowNull: true
     }
   }, {

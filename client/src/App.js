@@ -8,6 +8,7 @@ import Exercises from "./page/Exercises/Exercises";
 import User from "./page/User/User";
 import PlanWorkout from "./page/PlanWorkout/PlanWorkout";
 import Login from "./page/Login/Login";
+import Category from "./page/Category/Category";
 
  export const history = createBrowserHistory();
 function App() {
@@ -18,6 +19,7 @@ function App() {
       <AdminTemplate exact path="/exercises" Component={Exercises} />
       <AdminTemplate exact path="/user" Component={User} />
       <AdminTemplate exact path="/planworkout" Component={PlanWorkout} />
+      <AdminTemplate exact path="/category" Component={Category} />
         <Route exact path="/" component={Login} />
       </Switch>
     </Router>

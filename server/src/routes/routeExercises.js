@@ -1,7 +1,5 @@
 const express = require('express');
-const { getListExercises, updateExercises, createExercises, searchExercisesByName } = require('../controllers/exercises');
-const { deleteExercises } = require('../../server/src/controllers/exercises');
-const routeExercises = express.Router();
+const { getListExercises, updateExercises, createExercises, searchExercisesByName, deleteExercises } = require('../controllers/exercises');const routeExercises = express.Router();
 
 routeExercises.get('/getlistexercises',getListExercises)
 routeExercises.post('/updateexercises',updateExercises)

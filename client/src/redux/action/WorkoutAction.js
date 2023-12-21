@@ -74,6 +74,18 @@ export const UpdateWorkoutAction = (value) => {
         }
     }
 }
+export const UpdateWorkout1Action = (value) => {
+    return async (dispatch) => {
+        try {
+            let result = await http.post(`/workout/updateworkout1`, value);
+           const action = GetListWorkoutAction();
+           dispatch(action)
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+}
 
 
 export const CreateWorkoutAction = (value) => {

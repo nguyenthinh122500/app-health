@@ -12,11 +12,12 @@ import { storage_bucket } from "./../../firebase";
 import { useFormik } from "formik";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { DeteleUserAction, GetListUserAction, SearchUserAction } from "../../redux/action/UserAction";
+import { CreateCategoryAction, DeleteCategoryAction, GetListCategoryAction, SearchCategoryAction, UpdateCategoryAction } from "../../redux/action/CategoryAction";
 
-export default function User() {
+export default function Category() {
   const dispatch = useDispatch();
-  const { arrUser } = useSelector((root) => root.UserReducer);
-  console.log(arrUser);
+  const { arrCategory } = useSelector((root) => root.CategoryReducer);
+  console.log(arrCategory);
   let emptyProduct = {
     user_id: "0",
   };
@@ -45,7 +46,7 @@ export default function User() {
   };
 
   const [inputValue, setInputValue] = useState("");
-  const [text, setText] = useState("Thêm mới người dùng");
+  const [text, setText] = useState("Thêm mới loại kế hoạch");
   const [products, setProducts] = useState([]);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
@@ -62,12 +63,12 @@ export default function User() {
  
 
   useEffect(() => {
-    const action1 = GetListUserAction();
+    const action1 = GetListCategoryAction();
     dispatch(action1);
   }, []);
   useEffect(() => {
-    setProducts(arrUser.filter(item =>item.status ==="active"));
-  }, [arrUser]);
+    setProducts(arrCategory);
+  }, [arrCategory]);
 
 
   const hideDialog = () => {
@@ -95,23 +96,23 @@ export default function User() {
         const index = findIndexById(product.id);
 
         _products[index] = _product;
-        // const action = await UpdateExercisesAction(product);
-        // await dispatch(action);
+        const action = await UpdateCategoryAction(product);
+        await dispatch(action);
         setProductDialog(false);
         toast.current.show({
           severity: "success",
           summary: "Thành công",
-          detail: `Cập nhật người dùng ${product.exercise_name} thành công`,
+          detail: `Cập nhật loại kế hoạch ${product.category_name} thành công`,
           life: 3000,
         });
-        setText("Chỉnh sửa người dùng");
+        setText("Chỉnh sửa loại kế hoạch");
       } else {
-        // const action = await CreateExercisesAction(_product);
-        // await dispatch(action);
+        const action = await CreateCategoryAction(_product);
+        await dispatch(action);
         toast.current.show({
           severity: "success",
           summary: "Thành công",
-          detail: "Tạo  mới người dùng thành công",
+          detail: "Tạo mới loại kế hoạch thành công",
           life: 3000,
         });
         setProductDialog(false);
@@ -124,28 +125,18 @@ export default function User() {
   };
 
   const editProduct = (product) => {
-    setText("Chỉnh sửa người dùng");
+    setText("Chỉnh sửa loại kế hoạch");
     setProduct({ ...product });
     setProductDialog(true);
     setTempProduct({ ...product });
   };
 
   const deleteProduct = async () => {
-    const action = await DeteleUserAction(product.user_id);
+    const action = await DeleteCategoryAction(product.category_id, toast);
     await dispatch(action);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
-    toast.current.show({
-      severity: "error",
-      summary: "Thành công",
-      detail: `Xóa người dùng ${product.full_name} thành công`,
-      life: 3000,
-      options: {
-        style: {
-          zIndex: 100,
-        },
-      },
-    });
+
   };
 
   const findIndexById = (id) => {
@@ -201,19 +192,23 @@ export default function User() {
       // Thực hiện các xử lý khác tại đây
     }
   };
-
+  const openNew = () => {
+    setProduct(emptyProduct);
+    setSubmitted(false);
+    setProductDialog(true);
+  };
   const leftToolbarTemplate = () => {
     return (
       <div className="flex flex-wrap gap-2">
-        {/* <Button
+        <Button
           label="Thêm mới"
           icon="pi pi-plus"
           severity="success"
           onClick={() => {
             openNew();
-            setText("Thêm mới người dùng");
+            setText("Thêm mới loại kế hoạch");
           }}
-        /> */}
+        />
         {/* <Button label="Delete" icon="pi pi-trash" severity="danger" onClick={confirmDeleteSelected} disabled={!selectedProducts || !selectedProducts.length} /> */}
       </div>
     );
@@ -249,13 +244,13 @@ export default function User() {
   const actionBodyTemplate = (rowData) => {
     return (
       <React.Fragment>
-        {/* <Button
+        <Button
           icon="pi pi-pencil"
           rounded
           outlined
           className="mr-2"
           onClick={() => editProduct(rowData)}
-        /> */}
+        />
         <Button
           icon="pi pi-trash"
           rounded
@@ -269,30 +264,30 @@ export default function User() {
 
   const formik = useFormik({
     initialValues: {
-      full_name: "",
+      category_name: "",
     },
     onSubmit: (value) => {
       console.log(value);
-        const action = SearchUserAction(value);
+        const action = SearchCategoryAction(value);
         dispatch(action);
     },
   });
 
   useEffect(() => {
-    if (formik.values.full_name === "") {
-      const action = GetListUserAction();
+    if (formik.values.category_name === "") {
+      const action = GetListCategoryAction();
       dispatch(action);
     }
-  }, [formik.values.full_name]);
+  }, [formik.values.category_name]);
   const header = (
     <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-      <h4 className="m-0 mb-4">Quản lý người dùng</h4>
+      <h4 className="m-0 mb-4">Quản lý loại kế hoạch</h4>
       <span className="p-input-icon-left">
         <i className="pi pi-search" />
         <form onSubmit={formik.handleSubmit}>
           <InputText
             style={{ paddingLeft: "30px" }}
-            name="full_name"
+            name="category_name"
             type="search"
             onChange={formik.handleChange}
             placeholder="Tìm kiếm..."
@@ -359,55 +354,31 @@ export default function User() {
             rows={10}
             rowsPerPageOptions={[5, 10, 25]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-            currentPageReportTemplate="Đang hiển thị {first} đến {last} trong tổng số {totalRecords} người dùng"
+            currentPageReportTemplate="Đang hiển thị {first} đến {last} trong tổng số {totalRecords} loại kế hoạch"
             header={header}
           >
             <Column
-              field="user_id"
+              field="category_id"
               header="Mã"
               sortable
               style={{ minWidth: "11rem" }}
             ></Column>
 
             <Column
-              field="full_name"
-              header="Họ Tên"
+              field="category_name"
+              header="Tên loại kế hoạch"
               sortable
               style={{ minWidth: "12rem" }}
             ></Column>
 
             <Column
-              field="email"
-              header="Email"
+              field="description"
+              header="Chi tiết"
               sortable
               style={{ minWidth: "12rem" }}
             ></Column>
 
-            <Column
-              field="phone_number"
-              header="Phone"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-
-            <Column
-              field="weight"
-              header="Cân nặng/kg"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column
-              field="height"
-              header="Chiều cao/cm"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column
-              field="health_index"
-              header="Chỉ số/BMI"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
+           
             <Column
               style={{ minWidth: "12rem" }}
               field="image"
@@ -439,34 +410,18 @@ export default function User() {
               className="font-bold"
               style={{ fontWeight: "bold" }}
             >
-              Tên người dùng
+              Tên loại kế hoạch
             </label>
             <br />
             <InputText
-              id="exercise_name"
-              value={product.exercise_name}
-              onChange={(e) => onInputChange(e, "exercise_name")}
+              id="category_name"
+              value={product.category_name}
+              onChange={(e) => onInputChange(e, "category_name")}
               required
               autoFocus
             />
           </div>
-          <div className="field">
-            <label
-              htmlFor="processTypeName"
-              className="font-bold"
-              style={{ fontWeight: "bold" }}
-            >
-              Video
-            </label>
-            <br />
-            <InputText
-              id="video_url"
-              value={product.video_url}
-              onChange={(e) => onInputChange(e, "video_url")}
-              required
-              autoFocus
-            />
-          </div>
+
 
           <div className="field mt-5">
             <label
@@ -525,7 +480,7 @@ export default function User() {
             />
             {product && (
               <span>
-                Bạn có chắc chắn muốn xóa người dùng <b>{product.full_name}</b>
+                Bạn có chắc chắn muốn xóa loại kế hoạch <b>{product.category_name}</b>
                 ?
               </span>
             )}

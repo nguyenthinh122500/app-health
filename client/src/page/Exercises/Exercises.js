@@ -25,6 +25,11 @@ export default function Exercises() {
   console.log(arrExercises);
   let emptyProduct = {
     meal_id: "0",
+      exercise_name: "",
+      description: "",
+      video_url: "",
+      image: ""
+  
   };
   const uploadFile = (e) => {
     let file = e.target.files[0];
@@ -333,7 +338,19 @@ export default function Exercises() {
   const productDialogFooter = (
     <React.Fragment>
       <Button label="Hủy bỏ" icon="pi pi-times" outlined onClick={hideDialog} />
-      <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      {product.exercise_name === "" ||
+      product.video_url === "" ||
+      product.description === "" ||
+      product.image === "" ? (
+        <Button
+          label="Hoàn thành"
+          icon="pi pi-check"
+          disabled
+          onClick={saveProduct}
+        />
+      ) : (
+        <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      )}
     </React.Fragment>
   );
   const deleteProductDialogFooter = (
@@ -460,6 +477,9 @@ export default function Exercises() {
               required
               autoFocus
             />
+             {product.exercise_name === "" && (
+              <small className="p-error">Name is required.</small>
+            )}
           </div>
           <div className="field">
             <label
@@ -477,6 +497,9 @@ export default function Exercises() {
               required
               autoFocus
             />
+             {product.video_url === "" && (
+              <small className="p-error">Video url is required.</small>
+            )}
           </div>
 
           <div className="field mt-5">
@@ -495,6 +518,9 @@ export default function Exercises() {
               rows={3}
               cols={20}
             />
+             {product.description === "" && (
+              <small className="p-error">Description is required.</small>
+            )}
           </div>
           <div
             className="field mt-5"
@@ -507,6 +533,9 @@ export default function Exercises() {
             >
               Hình ảnh
             </label>
+            {product.image === "" && (
+              <small className="p-error">Image is required.</small>
+            )}
             <div
               style={{
                 height: "240px",

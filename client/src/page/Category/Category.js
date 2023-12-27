@@ -11,8 +11,18 @@ import { useDispatch, useSelector } from "react-redux";
 import { storage_bucket } from "./../../firebase";
 import { useFormik } from "formik";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { DeteleUserAction, GetListUserAction, SearchUserAction } from "../../redux/action/UserAction";
-import { CreateCategoryAction, DeleteCategoryAction, GetListCategoryAction, SearchCategoryAction, UpdateCategoryAction } from "../../redux/action/CategoryAction";
+import {
+  DeteleUserAction,
+  GetListUserAction,
+  SearchUserAction,
+} from "../../redux/action/UserAction";
+import {
+  CreateCategoryAction,
+  DeleteCategoryAction,
+  GetListCategoryAction,
+  SearchCategoryAction,
+  UpdateCategoryAction,
+} from "../../redux/action/CategoryAction";
 
 export default function Category() {
   const dispatch = useDispatch();
@@ -20,6 +30,10 @@ export default function Category() {
   console.log(arrCategory);
   let emptyProduct = {
     user_id: "0",
+
+    category_name: "",
+    description: "",
+    image: "",
   };
   const uploadFile = (e) => {
     let file = e.target.files[0];
@@ -60,8 +74,6 @@ export default function Category() {
   const toast = useRef(null);
   const dt = useRef(null);
 
- 
-
   useEffect(() => {
     const action1 = GetListCategoryAction();
     dispatch(action1);
@@ -69,7 +81,6 @@ export default function Category() {
   useEffect(() => {
     setProducts(arrCategory);
   }, [arrCategory]);
-
 
   const hideDialog = () => {
     setSubmitted(false);
@@ -136,7 +147,6 @@ export default function Category() {
     await dispatch(action);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
-
   };
 
   const findIndexById = (id) => {
@@ -268,8 +278,8 @@ export default function Category() {
     },
     onSubmit: (value) => {
       console.log(value);
-        const action = SearchCategoryAction(value);
-        dispatch(action);
+      const action = SearchCategoryAction(value);
+      dispatch(action);
     },
   });
 
@@ -299,7 +309,18 @@ export default function Category() {
   const productDialogFooter = (
     <React.Fragment>
       <Button label="Hủy bỏ" icon="pi pi-times" outlined onClick={hideDialog} />
-      <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      {product.category_name === "" ||
+      product.description === "" ||
+      product.image === "" ? (
+        <Button
+          label="Hoàn thành"
+          icon="pi pi-check"
+          disabled
+          onClick={saveProduct}
+        />
+      ) : (
+        <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      )}
     </React.Fragment>
   );
   const deleteProductDialogFooter = (
@@ -378,7 +399,6 @@ export default function Category() {
               style={{ minWidth: "12rem" }}
             ></Column>
 
-           
             <Column
               style={{ minWidth: "12rem" }}
               field="image"
@@ -420,8 +440,10 @@ export default function Category() {
               required
               autoFocus
             />
+            {product.category_name === "" && (
+              <small className="p-error">Name is required.</small>
+            )}
           </div>
-
 
           <div className="field mt-5">
             <label
@@ -439,6 +461,9 @@ export default function Category() {
               rows={3}
               cols={20}
             />
+            {product.description === "" && (
+              <small className="p-error">Name is required.</small>
+            )}
           </div>
           <div
             className="field mt-5"
@@ -451,6 +476,9 @@ export default function Category() {
             >
               Hình ảnh
             </label>
+            {product.image === "" && (
+              <small className="p-error">Name is required.</small>
+            )}
             <div
               style={{
                 height: "240px",
@@ -480,8 +508,8 @@ export default function Category() {
             />
             {product && (
               <span>
-                Bạn có chắc chắn muốn xóa loại kế hoạch <b>{product.category_name}</b>
-                ?
+                Bạn có chắc chắn muốn xóa loại kế hoạch{" "}
+                <b>{product.category_name}</b>?
               </span>
             )}
           </div>

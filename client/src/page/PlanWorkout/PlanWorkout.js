@@ -48,6 +48,13 @@ export default function PlanWorkout() {
   };
   let emptyProduct = {
     user_id: "0",
+
+    goal: "",
+    fitness_level: "",
+    category_id: "",
+    plan_name: "",
+    image: "",
+    total_time: 0,
   };
 
   const [selectedIds, setSelectedIds] = useState([]);
@@ -348,7 +355,7 @@ export default function PlanWorkout() {
       detail: `Thêm mới chi tiết thành công`,
       life: 3000,
     });
-    setFormCount(1)
+    setFormCount(1);
   };
   const findIndexById = (id) => {
     let index = -1;
@@ -534,7 +541,7 @@ export default function PlanWorkout() {
     const updatedPlanMeals = product.PlanMeals.filter(
       (item) => item.id !== itemId
     );
-console.log(itemId)
+    console.log(itemId);
     // Cập nhật object product với mảng mới đã xóa phần tử
     const updatedProduct = { ...product, PlanMeals: updatedPlanMeals };
     const action = WorkoutDeleteMealAction(itemId);
@@ -600,7 +607,21 @@ console.log(itemId)
   const productDialogFooter = (
     <React.Fragment>
       <Button label="Hủy bỏ" icon="pi pi-times" outlined onClick={hideDialog} />
-      <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      {product.goal === "" ||
+      selectedValueLevel === "" ||
+      product.plan_name === "" ||
+      selectedValueLevel1 === "" ||
+      product.total_time <= 0 ||
+      product.image === "" ? (
+        <Button
+          label="Hoàn thành"
+          icon="pi pi-check"
+          disabled
+          onClick={saveProduct}
+        />
+      ) : (
+        <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      )}
     </React.Fragment>
   );
   const deleteProductDialogFooter = (
@@ -758,6 +779,9 @@ console.log(itemId)
               required
               autoFocus
             />
+            {product.plan_name === "" && (
+              <small className="p-error">Name is required.</small>
+            )}
           </div>
 
           <div className="field" style={{ marginTop: "20px" }}>
@@ -776,7 +800,11 @@ console.log(itemId)
               onChange={(e) => onInputChange(e, "total_time")}
               required
               autoFocus
+              min={0}
             />
+            {product.total_time <=0  && (
+              <small className="p-error">Total time min 1.</small>
+            )}
           </div>
 
           <div className="field" style={{ marginTop: "20px" }}>
@@ -789,6 +817,7 @@ console.log(itemId)
             </label>
             <br />
             <select className="form-control" onChange={handleSelectChangeLevel}>
+              <option value="">Chọn mức độ</option>
               <option value="Underweight">Underweight</option>
               <option value="Normal">Normal</option>
               <option value="Overweight">Overweight</option>
@@ -796,6 +825,9 @@ console.log(itemId)
               <option value="Obese Level II">Obese Level II</option>
               <option value="Obese Level III">Obese Level III</option>
             </select>
+            {selectedValueLevel === "" && (
+              <small className="p-error">Fitness level is required.</small>
+            )}
           </div>
           <div className="field mt-5">
             <label
@@ -813,6 +845,9 @@ console.log(itemId)
               rows={3}
               cols={20}
             />
+            {product.goal === "" && (
+              <small className="p-error">Goal is required.</small>
+            )}
           </div>
 
           <div className="field" style={{ marginTop: "20px" }}>
@@ -837,6 +872,9 @@ console.log(itemId)
                 );
               })}
             </select>
+            {selectedValueLevel1 === "" && (
+              <small className="p-error">Field is required.</small>
+            )}
           </div>
           <div
             className="field mt-5"
@@ -849,6 +887,9 @@ console.log(itemId)
             >
               Hình ảnh
             </label>
+            {product.image === "" && (
+              <small className="p-error">Image is required.</small>
+            )}
             <div
               style={{
                 height: "240px",
@@ -1036,7 +1077,7 @@ console.log(itemId)
             {product && (
               <span>
                 Bạn có chắc chắn muốn xóa kế hoạch tập luyện{" "}
-                <b>{product.phan_name}</b>?
+                <b>{product.plan_name}</b>?
               </span>
             )}
           </div>

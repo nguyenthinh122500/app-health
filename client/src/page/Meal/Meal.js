@@ -25,8 +25,11 @@ export default function Meal() {
   console.log(arrMeal);
   let emptyProduct = {
     meal_id: "0",
+    calories: 0,
+    description: "",
+    meal_name: "",
+    image: "",
   };
-
 
   const uploadFile = (e) => {
     let file = e.target.files[0];
@@ -146,7 +149,6 @@ export default function Meal() {
     await dispatch(action);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
-    
   };
 
   const findIndexById = (id) => {
@@ -256,13 +258,13 @@ export default function Meal() {
           className="mr-2"
           onClick={() => editProduct(rowData)}
         />
-      <Button
+        <Button
           icon="pi pi-trash"
           rounded
           outlined
           severity="danger"
           onClick={() => confirmDeleteProduct(rowData)}
-        /> 
+        />
       </React.Fragment>
     );
   };
@@ -281,7 +283,7 @@ export default function Meal() {
   useEffect(() => {
     if (formik.values.mealName === "") {
       const action = GetListMealAction();
-      dispatch(action)
+      dispatch(action);
     }
   }, [formik.values.mealName]);
   const header = (
@@ -304,7 +306,19 @@ export default function Meal() {
   const productDialogFooter = (
     <React.Fragment>
       <Button label="Hủy bỏ" icon="pi pi-times" outlined onClick={hideDialog} />
-      <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      {product.meal_name === "" ||
+      product.calories <= 0 ||
+      product.description === "" ||
+      product.image === "" ? (
+        <Button
+          label="Hoàn thành"
+          icon="pi pi-check"
+          disabled
+          onClick={saveProduct}
+        />
+      ) : (
+        <Button label="Hoàn thành" icon="pi pi-check" onClick={saveProduct} />
+      )}
     </React.Fragment>
   );
   const deleteProductDialogFooter = (
@@ -339,7 +353,7 @@ export default function Meal() {
       />
     </React.Fragment>
   );
-
+  console.log(product.meal_name);
   return (
     <div className="app-main__outer" style={{ margin: "20px 30px" }}>
       <div>
@@ -431,6 +445,9 @@ export default function Meal() {
               required
               autoFocus
             />
+            {product.meal_name === "" && (
+              <small className="p-error">Name is required.</small>
+            )}
           </div>
           <div className="field">
             <label
@@ -449,6 +466,9 @@ export default function Meal() {
               required
               autoFocus
             />
+            {product.calories <= 0 && (
+              <small className="p-error">Calories is min 1.</small>
+            )}
           </div>
 
           <div className="field mt-5">
@@ -467,6 +487,9 @@ export default function Meal() {
               rows={3}
               cols={20}
             />
+            {product.description === "" && (
+              <small className="p-error">Description is required.</small>
+            )}
           </div>
           <div
             className="field mt-5"
@@ -479,6 +502,9 @@ export default function Meal() {
             >
               Hình ảnh
             </label>
+            {product.image === "" && (
+              <small className="p-error">Image is required.</small>
+            )}
             <div
               style={{
                 height: "240px",
